@@ -1,0 +1,23 @@
+{
+  "name": "pi-session-mention",
+  "version": "0.1.0",
+  "description": "pi extension: type @ to mention a historical session and attach it as reference material to the current session",
+  "type": "module",
+  "main": "extensions/session-mention.ts",
+  "keywords": [
+    "pi-package"
+  ],
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*",
+    "@types/node": "^26.6.5",
+    "typescript": "^5.0.0"
+  }
+}
