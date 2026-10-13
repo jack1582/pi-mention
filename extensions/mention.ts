@@ -631,8 +631,10 @@ export default function mention(pi: ExtensionAPI) {
 	});
 
 	pi.on("before_agent_start", async (event, ctx) => {
-		if (event.messageType !== "user" || !event.prompt.includes("@")) return;
-		const mentions = await collectMentions(event.prompt, ctx.cwd);
+		if (event.messageType !== "user") return;
+		const prompt: string = event.prompt;
+		if (!prompt.includes("@")) return;
+		const mentions = await collectMentions(prompt, ctx.cwd);
 		if (mentions.length === 0) return;
 		const body = mentions.map((m, i) => `${i + 1}. ${m.token} → ${m.meta}`).join("\n");
 		const content = [
