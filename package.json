@@ -1,7 +1,7 @@
 {
   "name": "pi-session-mention",
   "version": "0.1.0",
-  "description": "pi extension: type @ to mention a historical session and attach it as reference material to the current session",
+  "description": "pi extension: @ picker for files, project sessions and all sessions (Tab to switch, ←→ to navigate); attaches metadata and a read_session tool",
   "type": "module",
   "main": "extensions/session-mention.ts",
   "keywords": [

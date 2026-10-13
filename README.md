@@ -1,12 +1,6 @@
 # pi-session-mention
 
-A [pi](https://github.com/earendil-works/pi-coding-agent) extension that lets you `@`-mention a historical session and attach it to the current session as reference material.
-
-## What it does
-
-- While typing `@` in the prompt, the completion list includes your **recent pi sessions** (alongside the built-in file completions).
-- Each session item shows its first user message and how long ago it was active.
-- When you submit a prompt containing a session mention (e.g. `@2026-10-12T…jsonl`), the extension reads that session's transcript, renders it as readable Markdown (user/assistant turns, truncated to a size cap), and injects it into the prompt as a fenced reference block.
+A [pi](https://github.com/earendil-works/pi-coding-agent) extension that turns `@` into a layered picker for **files, project sessions and all sessions**, and attaches what you mention as lightweight *metadata* the agent can follow up on.
 
 ## Install
 
@@ -14,11 +8,47 @@ A [pi](https://github.com/earendil-works/pi-coding-agent) extension that lets yo
 pi install git:github.com/jack1582/pi-session-mention
 ```
 
-## Usage
+## Picker
 
-1. Type `@` and keep typing to fuzzy-filter; your past sessions appear under their first user message (labeled `session:`).
-2. Select one — a `@<session-file-name>` token is inserted into the prompt.
-3. Add your actual question, e.g. `@2026-10-12T14-27-42…jsonl 总结上次讨论的接口文档要点`.
-4. On submit, the extension replaces the token with the session transcript (capped, oldest turns elided) so the model can use it as context.
+Type `@` at the start of a word (in interactive/TUI mode) and a picker opens below the editor:
 
-Only sessions belonging to the current working directory are listed (same scope pi itself uses).
+```
+ @ [Files]  Project sessions   All sessions   (tab)
+ ~/my-project  type to filter
+ ❯ src/ ›  dir
+   README.md
+ ↑↓ move  ·  → open  ·  ← back  ·  ↩ select  ·  tab type  ·  esc cancel
+```
+
+| Key | Action |
+| --- | --- |
+| `Tab` / `Shift+Tab` | cycle type: **Files** (cwd) → **Project sessions** → **All sessions** |
+| `↑` `↓` (`PgUp` `PgDn`) | move focus |
+| `→` | go one level down (directory · project · session → turns) |
+| `←` | go one level up |
+| `↩` | insert the focused item |
+| typing | fuzzy-filter the current level (Files: searches recursively) |
+| `Esc` / `Backspace` on empty filter / `Space` | close, keep a literal `@` |
+
+Levels:
+
+- **Files**: directories → files. Inserts `@path/to/file` (or `@"path with spaces"`); directories can be mentioned too.
+- **Project sessions**: sessions of the current cwd → their turns.
+- **All sessions**: projects → sessions → turns. Typing at the project level searches all sessions at once.
+
+Sessions insert `@session:<id8>`; a single turn inserts `@session:<id8>#<turn>`.
+
+## Multiple mentions, small context
+
+A prompt can contain any number of mentions. On submit, the extension does **not** paste contents into the prompt. It attaches one short `<mentions>` message with metadata per item:
+
+- file: absolute path, size, line count, first non-empty line
+- directory: entry count and the first few names
+- session / turn: title, project, turn count, last activity, file path, and the user request of that turn
+
+The agent is instructed to read the real content itself when relevant: files with its normal tools, sessions with the bundled **`read_session`** tool:
+
+- `read_session({ session: "1a2b3c4d" })` → outline (one line per turn + latest compaction summary)
+- `read_session({ session: "1a2b3c4d", turns: "3-5", maxChars: 20000 })` → those turns (user, assistant text, tool calls, truncated tool results), paginated by a character budget
+
+This keeps long files and transcripts out of the context until the agent actually needs them.
