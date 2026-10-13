@@ -1,9 +1,9 @@
 {
-  "name": "pi-session-mention",
+  "name": "pi-mention",
   "version": "0.1.0",
   "description": "pi extension: @ picker for files, project sessions and all sessions (Tab to switch, ←→ to navigate); attaches metadata and a read_session tool",
   "type": "module",
-  "main": "extensions/session-mention.ts",
+  "main": "extensions/mention.ts",
   "keywords": [
     "pi-package"
   ],

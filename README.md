@@ -1,11 +1,11 @@
-# pi-session-mention
+# pi-mention
 
 A [pi](https://github.com/earendil-works/pi-coding-agent) extension that turns `@` into a layered picker for **files, project sessions and all sessions**, and attaches what you mention as lightweight *metadata* the agent can follow up on.
 
 ## Install
 
 ```sh
-pi install git:github.com/jack1582/pi-session-mention
+pi install git:github.com/jack1582/pi-mention
 ```
 
 ## Picker

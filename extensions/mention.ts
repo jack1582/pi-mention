@@ -1,5 +1,5 @@
 /**
- * pi-session-mention
+ * pi-mention
  *
  * Replaces the editor's `@` behaviour with a layered picker:
  *
@@ -29,7 +29,7 @@ import { Type } from "@earendil-works/pi-ai";
 import type { EditorTheme, TUI } from "@earendil-works/pi-tui";
 import { decodeKittyPrintable, fuzzyFilter, matchesKey, Text, truncateToWidth } from "@earendil-works/pi-tui";
 
-const CUSTOM_TYPE = "session-mention";
+const CUSTOM_TYPE = "mention";
 const MAX_VISIBLE = 8;
 const FILE_SCAN_LIMIT = 5000;
 const SKIP_DIRS = new Set([".git", "node_modules", ".DS_Store"]);
@@ -618,7 +618,7 @@ async function collectMentions(prompt: string, cwd: string): Promise<Mention[]> 
 
 // ─────────────────────────── extension ───────────────────────────
 
-export default function sessionMention(pi: ExtensionAPI) {
+export default function mention(pi: ExtensionAPI) {
 	pi.on("session_start", (_event, ctx) => {
 		if (ctx.mode !== "tui" || !ctx.hasUI) return;
 		ctx.ui.setEditorComponent(
