@@ -10,7 +10,7 @@ pi install git:github.com/jack1582/pi-mention
 
 ## Picker
 
-Type `@` at the start of a word (in interactive/TUI mode) and a picker opens below the editor:
+Type `@` anywhere in the prompt (in interactive/TUI mode) – at the start, mid-sentence, on any line, right after CJK text (`看看@`) or an opening bracket – and a picker opens below the editor. An `@` glued to an ASCII word (e.g. `me@host.com`) stays literal:
 
 ```
  @ [Files]  Project sessions   All sessions   (tab)

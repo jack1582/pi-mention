@@ -108,7 +108,10 @@ function textOf(content: unknown): string {
 	if (typeof content === "string") return content;
 	if (!Array.isArray(content)) return "";
 	return content
-		.map((b: any) => (b?.type === "text" ? b.text : b?.type === "image" ? "[image]" : ""))
+		.map((b: any) => {
+			if (b?.type === "text") return b.text;
+			return b?.type === "image" ? "[image]" : "";
+		})
 		.filter(Boolean)
 		.join("\n");
 }
@@ -174,7 +177,8 @@ function parseTurnRange(spec: string | undefined, total: number): [number, numbe
 	const m = spec.trim().match(/^(\d+)(?:\s*-\s*(\d+)?)?$/);
 	if (!m) return undefined;
 	const a = Math.max(1, Number(m[1]));
-	const b = m[2] ? Number(m[2]) : spec.includes("-") ? total : a;
+	let b = spec.includes("-") ? total : a;
+	if (m[2]) b = Number(m[2]);
 	return [a, Math.min(total, Math.max(a, b))];
 }
 
@@ -395,10 +399,23 @@ class MentionEditor extends CustomEditor {
 		return fuzzyFilter(pool, q, (i) => i.search).slice(0, 200);
 	}
 
+	/**
+	 * Whether an `@` typed at the cursor should open the picker. Works anywhere in
+	 * the prompt (any line, cursor in the middle of text, right after CJK text or
+	 * an opening bracket/quote) – only skipped when glued to a preceding ASCII
+	 * word, so e-mail addresses / handles like `me@host` stay literal.
+	 */
 	private atTokenBoundary(): boolean {
 		const { line, col } = this.getCursor();
 		const before = (this.getLines()[line] ?? "").slice(0, col);
-		return before.length === 0 || /\s$/.test(before);
+		return before.length === 0 || !MENTION_BLOCKER_RE.test(before);
+	}
+
+	/** Insert the picked token, adding a separating space only when needed. */
+	private insertToken(token: string): void {
+		const { line, col } = this.getCursor();
+		const next = (this.getLines()[line] ?? "").charAt(col);
+		this.insertTextAtCursor(next && /\s/.test(next) ? token : `${token} `);
 	}
 
 	override handleInput(data: string): void {
@@ -446,7 +463,7 @@ class MentionEditor extends CustomEditor {
 			if (item?.token) {
 				this.picker = undefined;
 				// "@" is already in the buffer right before the cursor.
-				this.insertTextAtCursor(`${item.token.slice(1)} `);
+				this.insertToken(item.token.slice(1));
 			} else if (item?.open) {
 				picker.stack.push(item.open());
 			}
@@ -536,7 +553,16 @@ class MentionEditor extends CustomEditor {
 
 // ─────────────────────────── mention resolution ───────────────────────────
 
-const TOKEN_RE = /(^|\s)@(session:([0-9a-fA-F]{8})(?:#(\d+))?|"([^"]+)"|([^\s@"]+))/g;
+/** Chars that may not end a mention (CJK / full-width punctuation). */
+const CJK_PUNCT = "，。、；：！？（）【】《》「」『』“”‘’…—～";
+/** A `@` glued to one of these (e.g. `me@host`, `a.b@c`) is not a mention. */
+const MENTION_BLOCKER_RE = /[A-Za-z0-9_.+\-@\/\\]$/;
+// `@` must not follow an ASCII word char, so mentions work mid-prompt and right
+// after CJK text ("看看@src/a.ts") while e-mail addresses stay ignored.
+const TOKEN_RE = new RegExp(
+	`()(?<![A-Za-z0-9_.+\\-@/\\\\])@(session:([0-9a-fA-F]{8})(?:#(\\d+))?|"([^"]+)"|([^\\s@"${CJK_PUNCT}]+))`,
+	"gu",
+);
 
 interface Mention {
 	token: string;
