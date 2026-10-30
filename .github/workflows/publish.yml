@@ -24,4 +24,11 @@ jobs:
 
       - run: npm ci
 
-      - run: npm publish
+      # trusted publishing (OIDC): drop the token setup-node wrote so npm falls
+      # back to the OIDC id-token instead of a (nonexistent) static NPM_TOKEN.
+      - name: Configure npm for OIDC
+        run: |
+          npm config delete //registry.npmjs.org/:_authToken
+          npm config set registry https://registry.npmjs.org/
+
+      - run: npm publish --provenance
