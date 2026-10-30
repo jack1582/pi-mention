@@ -1,6 +1,6 @@
 {
   "name": "pi-mention",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "pi extension: @ picker for files, project sessions and all sessions (Tab to switch, ←→ to navigate); attaches metadata and a read_session tool",
   "license": "MIT",
   "type": "module",
