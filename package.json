@@ -1,31 +1,52 @@
 {
   "name": "pi-mention",
   "version": "0.1.1",
-  "description": "pi extension: @ picker for files, project sessions and all sessions (Tab to switch, ←→ to navigate); attaches metadata and a read_session tool",
+  "description": "pi + omp extension: @ for files, sessions and live peer sessions that can message each other like a swarm; extensible with @scheme: providers",
   "license": "MIT",
   "type": "module",
   "main": "extensions/mention.ts",
+  "pi": {
+    "extensions": [
+      "./extensions/mention.ts"
+    ]
+  },
+  "omp": {
+    "extensions": [
+      "./extensions/mention.ts"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jack1582/pi-mention.git"
   },
   "files": [
     "extensions",
+    "src",
     "README.md"
   ],
   "keywords": [
     "pi-package",
     "pi",
+    "omp",
+    "oh-my-pi",
     "extension",
     "mention",
-    "picker"
+    "picker",
+    "swarm",
+    "multi-agent"
   ],
   "scripts": {
     "check": "tsc --noEmit"
   },
   "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
     "@earendil-works/pi-coding-agent": "*",
     "@earendil-works/pi-tui": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-tui": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "^1.2.0",
